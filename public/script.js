@@ -1,3 +1,5 @@
+// const { ConnectionStates } = require("mongoose");
+
 document.addEventListener('DOMContentLoaded', function () {
     const userInfoForm = document.getElementById('mh-user-info-form');
     const startQuizBtn = document.getElementById('mh-start-quiz');
@@ -63,6 +65,8 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         // Send the form data along with quiz responses to the server
+        // Inside userInfoForm.addEventListener('submit', function (event) {...})
+        // Update the formData object to include quizResponses
         const formData = {
             name: document.getElementById('mh-name').value,
             age: document.getElementById('mh-age').value,
@@ -76,13 +80,17 @@ document.addEventListener('DOMContentLoaded', function () {
             quizResponses: quizResponses // Include quiz responses
         };
 
+        // Inside fetch('/save-form-data', {...})
+        // Send both form data and quiz responses to the server
+        body: JSON.stringify({ formData, quizResponses })
+
         // Send the form data to the server
         fetch('/save-form-data', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(formData)
+            body: JSON.stringify({ formData, quizResponses })
         })
             .then(response => {
                 if (response.ok) {
@@ -140,9 +148,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Function to handle selecting an option
     function selectOption(optionIndex) {
+        const currentQuestionIndex = quizResponses.length; // Get the index of the current question
+        const currentQuestion = questions[currentQuestionIndex]; // Get the current question object
+
         const response = {
-            question: questions[quizResponses.length].question,
-            answer: questions[quizResponses.length].options[optionIndex]
+            question: currentQuestion.question, // Capture the question
+            answer: currentQuestion.options[optionIndex] // Capture the selected answer
         };
 
         quizResponses.push(response); // Add the quiz response to the array
@@ -156,4 +167,5 @@ document.addEventListener('DOMContentLoaded', function () {
         const percent = (quizResponses.length / questions.length) * 100;
         document.getElementById('progress').value = percent;
     }
+
 });
